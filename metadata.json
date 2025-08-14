@@ -1,0 +1,5 @@
+{
+  "name": "Magnapenta's AI",
+  "description": "Alat internal untuk konsultan Magnapenta. Menghasilkan kerangka proyek secara sekuensial, di mana setiap modul dibangun berdasarkan output dari modul sebelumnya.",
+  "requestFramePermissions": []
+}
