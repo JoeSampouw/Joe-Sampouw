@@ -1,7 +1,20 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { FormData, ProjectFramework, ProjectModule } from '../types';
+import {
+    DUMMY_SITUATIONAL_ANALYSIS,
+    DUMMY_PROJECT_MODULES,
+    DUMMY_IMPLEMENTATION_STEPS,
+    DUMMY_POTENTIAL_RISKS,
+    DUMMY_PROPOSAL
+} from "./dummyData";
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY! });
+// Initialize AI only if API Key is present to prevent immediate crash
+const apiKey = process.env.API_KEY;
+let ai: GoogleGenAI | null = null;
+if (apiKey) {
+    ai = new GoogleGenAI({ apiKey: apiKey });
+}
+
 const model = "gemini-2.5-flash";
 
 const getFocusContext = (focusArea: string): string => {
@@ -32,6 +45,7 @@ const commonErrorHandler = (error: unknown) => {
 }
 
 const generateContent = async (prompt: string, responseSchema?: any) => {
+    if (!ai) return null; // Should be handled by caller checking apiKey
     try {
         const config = {
             systemInstruction,
@@ -66,6 +80,13 @@ export const generateSituationalAnalysis = async (
     refinementInstruction?: string,
     originalContent?: string
 ): Promise<string> => {
+    if (!apiKey) {
+        console.warn("API Key missing. Returning dummy data.");
+        // Simulate network delay
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        return DUMMY_SITUATIONAL_ANALYSIS;
+    }
+
     const basePrompt = `
         KONTEKS KLIEN:
         ${clientInfo(formData)}
@@ -106,6 +127,10 @@ export const generateProjectModules = async (
     refinementInstruction?: string,
     originalContent?: ProjectModule[]
 ): Promise<ProjectModule[]> => {
+    if (!apiKey) {
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        return DUMMY_PROJECT_MODULES;
+    }
     
     let prompt;
     const basePrompt = `
@@ -163,6 +188,11 @@ export const generateImplementationSteps = async (
     refinementInstruction?: string,
     originalContent?: string[]
 ): Promise<string[]> => {
+    if (!apiKey) {
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        return DUMMY_IMPLEMENTATION_STEPS;
+    }
+
     const modulesText = projectModules.map(m => `**${m.title}**: ${m.description}`).join('\n');
     const basePrompt = `
         Dengan mempertimbangkan analisis situasi dan modul proyek yang telah dirancang:
@@ -214,6 +244,11 @@ export const generatePotentialRisks = async (
     refinementInstruction?: string,
     originalContent?: string[]
 ): Promise<string[]> => {
+    if (!apiKey) {
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        return DUMMY_POTENTIAL_RISKS;
+    }
+
     const modulesText = projectModules.map(m => `**${m.title}**: ${m.description}`).join('\n');
     const stepsText = implementationSteps.join(', ');
     const basePrompt = `
@@ -258,6 +293,11 @@ export const generateProposal = async (
     refinementInstruction?: string,
     originalContent?: string
 ): Promise<string> => {
+    if (!apiKey) {
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        return DUMMY_PROPOSAL;
+    }
+
     const modulesText = framework.projectModules?.map(m => `**${m.title}**:\n${m.description}`).join('\n\n');
     const stepsText = framework.implementationSteps?.map(s => `- ${s}`).join('\n');
     const risksText = framework.potentialRisks?.map(r => `- ${r}`).join('\n');
