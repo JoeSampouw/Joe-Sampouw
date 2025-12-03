@@ -53,9 +53,7 @@ const App: React.FC = () => {
     setStep(AppStep.Loading);
     setError(null);
     try {
-      if (!process.env.API_KEY) {
-        throw new Error("API Key tidak ditemukan. Mohon atur variabel lingkungan API_KEY.");
-      }
+      // API Key check removed to allow dummy data fallback
       const analysis = await generateSituationalAnalysis(currentFormData);
       setProjectFramework({ situationalAnalysis: analysis });
       setCurrentModuleIndex(1);
